@@ -1,0 +1,22 @@
+{
+  "name": "devops-cicd-pipeline-demo",
+  "version": "1.0.0",
+  "description": "Production-ready CI/CD pipeline demonstration",
+  "main": "index.html",
+  "scripts": {
+    "test": "mocha tests/**/*.test.js",
+    "test:coverage": "nyc mocha tests/**/*.test.js"
+  },
+  "keywords": [
+    "cicd",
+    "devops",
+    "github-actions",
+    "docker"
+  ],
+  "author": "Jonathan Juining",
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0"
+  }
+}
