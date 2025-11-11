@@ -7,7 +7,14 @@ let targetWord = WORDS[Math.floor(Math.random() * WORDS.length)];
 let currentRow = 0;
 let currentTile = 0;
 let gameOver = false;
-let stats = JSON.parse(localStorage.getItem(STORAGE_KEYS.STATS)) || DEFAULT_STATS;
+let stats =
+  JSON.parse(localStorage.getItem(STORAGE_KEYS.STATS)) || DEFAULT_STATS;
+
+// ============================================
+// INPUT STATE MANAGEMENT (Prevents spam/race conditions)
+// ============================================
+let isValidating = false; // Prevents concurrent validation requests
+let inputEnabled = true; // Global input lock
 
 /* ============================================
    Initialize Game
@@ -77,6 +84,8 @@ function createKeyboard() {
 
 function handleKeyPress(key) {
   if (gameOver) return;
+  if (!inputEnabled) return; // Ignore input while processing
+  if (isValidating && key === "ENTER") return; // Prevent Enter spam during validation
 
   if (key === "ENTER") {
     submitGuess();
@@ -103,6 +112,9 @@ function updateKeyColor(letter, status) {
    Guess Submission & Validation
    ============================================ */
 function submitGuess() {
+  // Prevent concurrent submissions
+  if (isValidating) return;
+
   if (currentTile < GAME_CONFIG.WORD_LENGTH) {
     showMessage("Not enough letters");
     return;
@@ -114,13 +126,33 @@ function submitGuess() {
     guess += tile.textContent;
   }
 
-  // Validate word is in dictionary
-  if (!VALID_WORDS.has(guess)) {
-    showMessage("Not in word list");
+  // Guard: Validate guess is complete and not empty
+  if (guess.length !== GAME_CONFIG.WORD_LENGTH || guess.trim() === "") {
+    showMessage("Invalid input");
     return;
   }
 
-  processGuess(guess);
+  // Lock input during async validation
+  isValidating = true;
+
+  // Validate word using dictionary service (API + cache + fallback)
+  dictionaryService
+    .isValidWord(guess)
+    .then((isValid) => {
+      if (!isValid) {
+        showMessage("Not in word list");
+        isValidating = false; // Unlock immediately on invalid word
+        return;
+      }
+
+      // Valid word - process it
+      processGuess(guess);
+    })
+    .catch((error) => {
+      console.error("Validation error:", error);
+      showMessage("Error validating word");
+      isValidating = false; // Unlock on error
+    });
 }
 
 function processGuess(guess) {
@@ -155,9 +187,10 @@ function processGuess(guess) {
     }, i * GAME_CONFIG.ANIMATION_DELAY);
   }
 
-  // Check result after animation
+  // Check result after animation - then unlock input
   setTimeout(() => {
     checkGameResult(guess);
+    isValidating = false; // Unlock input after guess is fully processed
   }, GAME_CONFIG.FLIP_ANIMATION_DURATION);
 }
 
@@ -219,6 +252,8 @@ function resetGame() {
   currentRow = 0;
   currentTile = 0;
   gameOver = false;
+  isValidating = false; // Reset validation lock
+  inputEnabled = true; // Re-enable input
 
   // Clear board tiles
   for (let i = 0; i < GAME_CONFIG.MAX_ATTEMPTS; i++) {
@@ -276,14 +311,19 @@ function closeReleaseNotes() {
   const dontShowAgain = document.getElementById("dontShowAgain");
 
   if (dontShowAgain.checked) {
-    localStorage.setItem(STORAGE_KEYS.RELEASE_NOTES_VERSION, RELEASE_NOTES.version);
+    localStorage.setItem(
+      STORAGE_KEYS.RELEASE_NOTES_VERSION,
+      RELEASE_NOTES.version
+    );
   }
 
   modal.style.display = "none";
 }
 
 function checkAndShowReleaseNotes() {
-  const lastSeenVersion = localStorage.getItem(STORAGE_KEYS.RELEASE_NOTES_VERSION);
+  const lastSeenVersion = localStorage.getItem(
+    STORAGE_KEYS.RELEASE_NOTES_VERSION
+  );
 
   // Show release notes only if new version or first time
   if (lastSeenVersion !== RELEASE_NOTES.version) {
@@ -298,10 +338,14 @@ function checkAndShowReleaseNotes() {
    ============================================ */
 document.addEventListener("keydown", (e) => {
   if (gameOver) return;
+  if (!inputEnabled) return; // Ignore input while processing
+  if (isValidating && e.key === "Enter") return; // Prevent Enter spam
 
   if (e.key === "Enter") {
+    e.preventDefault(); // Prevent default browser behavior
     handleKeyPress("ENTER");
   } else if (e.key === "Backspace") {
+    e.preventDefault();
     handleKeyPress("⌫");
   } else if (/^[a-zA-Z]$/.test(e.key)) {
     handleKeyPress(e.key.toUpperCase());
