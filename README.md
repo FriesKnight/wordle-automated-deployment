@@ -125,7 +125,6 @@ This project demonstrates modern DevOps practices by combining an interactive we
 ## 🏗️ Architecture
 
 ### System Architecture
-
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                     Developer Workflow                       │
@@ -162,8 +161,7 @@ This project demonstrates modern DevOps practices by combining an interactive we
                     └──────────────────┘
 ```
 
-### Pipeline Stages
-
+### Pipeline Flow
 ```mermaid
 graph LR
     A[Code Push] --> B[Run Tests]
@@ -181,8 +179,7 @@ graph LR
 ### Pipeline Overview
 
 The CI/CD pipeline automatically executes on every push to `main` or `develop` branches:
-
-```yaml
+```
 Trigger: git push
     ↓
 ┌─── Stage 1: Run Tests (18s) ───────────────┐
@@ -241,54 +238,46 @@ The pipeline is defined in `.github/workflows/ci-cd-pipeline.yml`:
 
 #### 1. Test Job
 
-```yaml
-Purpose: Validate code quality and functionality
-Duration: ~18 seconds
-Actions:
+- **Purpose**: Validate code quality and functionality
+- **Duration**: ~18 seconds
+- **Actions**:
   - Install dependencies
   - Run Mocha test suite
   - Generate NYC coverage report
   - Upload coverage artifacts
-```
 
 #### 2. Security Scan Job
 
-```yaml
-Purpose: Identify security vulnerabilities
-Duration: ~23 seconds
-Tool: Trivy (Aqua Security)
-Scans:
+- **Purpose**: Identify security vulnerabilities
+- **Duration**: ~23 seconds
+- **Tool**: Trivy (Aqua Security)
+- **Scans**:
   - Dependencies for known CVEs
   - Configuration issues
   - Exposed secrets
   - License compliance
-```
 
 #### 3. Build Docker Image Job
 
-```yaml
-Purpose: Containerize application
-Duration: ~36 seconds
-Process:
+- **Purpose**: Containerize application
+- **Duration**: ~36 seconds
+- **Process**:
   - Build multi-stage Docker image
   - Run container health checks
   - Test image functionality
   - Cache layers with GitHub Actions cache
-```
 
 #### 4. Deploy to GitHub Pages Job
 
-```yaml
-Purpose: Deploy to production
-Duration: ~51 seconds
-Requirements:
+- **Purpose**: Deploy to production
+- **Duration**: ~51 seconds
+- **Requirements**:
   - Only runs on main branch
   - Requires Test + Build to pass
-Permissions:
+- **Permissions**:
   - contents: read
   - pages: write
   - id-token: write
-```
 
 ---
 
@@ -323,7 +312,7 @@ Permissions:
 - **Nginx** - Web server (in container)
 - **Trivy** - Security scanning
 - **GitHub Pages** - Static site hosting
-- **GitHub Secrets** - Secure credential management (attempted)
+- **GitHub Secrets** - Secure credential management
 
 ### Development Tools
 
@@ -345,53 +334,49 @@ Permissions:
 ### Installation
 
 1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/FriesKnight/devops-cicd-pipeline-demo.git
-   cd devops-cicd-pipeline-demo
-   ```
+```bash
+git clone https://github.com/FriesKnight/devops-cicd-pipeline-demo.git
+cd devops-cicd-pipeline-demo
+```
 
 2. **Install dependencies**
-
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
 3. **Run the application locally**
-
-   ```bash
-   # Open index.html in your browser
-   # Or use a simple HTTP server:
-   npx http-server . -p 8080
-   ```
+```bash
+# Open index.html in your browser
+# Or use a simple HTTP server:
+npx http-server . -p 8080
+```
 
 4. **Access the application**
-   ```
-   http://localhost:8080
-   ```
+```
+http://localhost:8080
+```
 
 ---
 
 ## 💻 Development
 
 ### Project Structure
-
 ```
 wordle-automated-deployment/
 ├── .github/
 │   └── workflows/
 │       ├── ci-cd-pipeline.yml    # Original CI/CD pipeline
-│       └── deploy.yml            # GitHub Pages deployment with secrets
+│       └── deploy.yml            # GitHub Pages deployment
 ├── tests/
 │   └── app.test.js               # Mocha test suite
 ├── screenshots/                   # Project screenshots
 ├── Dockerfile                     # Container configuration
-├── index.html                     # Main application file (modals, profiles, leaderboard)
+├── index.html                     # Main application file
 ├── game.js                        # Core game logic & profile management
-├── config.js                      # Game configuration & release notes (v1.2.0)
+├── config.js                      # Game configuration & release notes
 ├── styles.css                     # Styling with mobile responsive design
 ├── dictionary-service.js          # Word validation API with caching
-├── supabase-service.js            # Cloud database operations (HARDCODED CREDENTIALS)
+├── supabase-service.js            # Cloud database operations
 ├── package.json                   # Node.js dependencies
 ├── package-lock.json              # Dependency lock file
 ├── .gitignore                     # Git ignore rules
@@ -401,7 +386,6 @@ wordle-automated-deployment/
 ```
 
 ### Running Tests Locally
-
 ```bash
 # Run all tests
 npm test
@@ -414,7 +398,6 @@ npm run test:watch
 ```
 
 ### Docker Development
-
 ```bash
 # Build the Docker image
 docker build -t wordle-game .
@@ -435,30 +418,26 @@ docker stop <container-id>
 ### Making Changes
 
 1. **Create a new branch**
-
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
+```bash
+git checkout -b feature/your-feature-name
+```
 
 2. **Make your changes**
-
    - Edit code
    - Add tests
    - Update documentation
 
 3. **Test locally**
-
-   ```bash
-   npm test
-   ```
+```bash
+npm test
+```
 
 4. **Commit and push**
-
-   ```bash
-   git add .
-   git commit -m "feat: add your feature description"
-   git push origin feature/your-feature-name
-   ```
+```bash
+git add .
+git commit -m "feat: add your feature description"
+git push origin feature/your-feature-name
+```
 
 5. **Create Pull Request**
    - Pipeline will run automatically
@@ -498,7 +477,7 @@ To manually trigger deployment:
 
 ### Deployment Environments
 
-- **Production**: `main` branch → [https://friesknight.github.io/devops-cicd-pipeline-demo/](https://friesknight.github.io/devops-cicd-pipeline-demo/)
+- **Production**: `main` branch → https://friesknight.github.io/devops-cicd-pipeline-demo/
 - **Development**: `develop` branch → Pipeline runs but doesn't deploy
 
 ### Rollback Procedure
@@ -506,23 +485,21 @@ To manually trigger deployment:
 If you need to rollback to a previous version:
 
 1. **Find the commit hash** of the working version:
-
-   ```bash
-   git log --oneline
-   ```
+```bash
+git log --oneline
+```
 
 2. **Revert to that commit**:
-
-   ```bash
-   git revert <commit-hash>
-   git push origin main
-   ```
+```bash
+git revert <commit-hash>
+git push origin main
+```
 
 3. **Or force push** (use with caution):
-   ```bash
-   git reset --hard <commit-hash>
-   git push origin main --force
-   ```
+```bash
+git reset --hard <commit-hash>
+git push origin main --force
+```
 
 ---
 
@@ -539,7 +516,6 @@ The project includes a comprehensive test suite covering:
 - Environment validation
 
 ### Running Tests
-
 ```bash
 # Run all tests
 npm test
@@ -560,7 +536,6 @@ open coverage/index.html
 ### Adding New Tests
 
 Create new test files in the `tests/` directory:
-
 ```javascript
 // tests/new-feature.test.js
 const assert = require("assert");
@@ -579,14 +554,14 @@ describe("New Feature", function () {
 
 ### Planned Features
 
-#### Phase 1: Backend Integration ✅ **COMPLETED**
+#### Phase 1: Backend Integration ✅ COMPLETED
 
-- [x] **Supabase PostgreSQL database** - Free cloud database with RLS
-- [x] **User profiles** - Display name, email, custom avatars
-- [x] **Anonymous user system** - Auto-creates users, can claim profiles later
-- [x] **RESTful API endpoints** - Via Supabase client SDK
-- [x] **Stats persistence** - Game history, streaks, win rates saved to cloud
-- [x] **Global leaderboard** - Real-time ranking system
+- [x] Supabase PostgreSQL database
+- [x] User profiles with custom avatars
+- [x] Anonymous user system
+- [x] RESTful API endpoints
+- [x] Stats persistence
+- [x] Global leaderboard
 
 #### Phase 2: Multiplayer Mode
 
@@ -597,11 +572,9 @@ describe("New Feature", function () {
 
 #### Phase 3: Enhanced Features
 
-- [ ] Global leaderboard
-- [ ] User profiles and statistics
-- [ ] Friend system
 - [ ] Daily challenges
 - [ ] Achievement system
+- [ ] Friend system
 - [ ] Custom word lists
 - [ ] Difficulty levels
 
@@ -615,7 +588,6 @@ describe("New Feature", function () {
 - [ ] Performance monitoring
 
 ### Architecture for Multiplayer
-
 ```
 Frontend (Current)
     ↓ WebSocket
@@ -625,8 +597,6 @@ PostgreSQL Database
     ↓
 Redis Cache
 ```
-
-See `docs/ARCHITECTURE.md` for detailed expansion plans.
 
 ---
 
@@ -645,23 +615,27 @@ Contributions are welcome! Here's how you can help:
 
 1. **Fork the repository**
 2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
+```bash
+git checkout -b feature/amazing-feature
+```
+
 3. **Make your changes**
 4. **Add tests** for new functionality
 5. **Ensure tests pass**
-   ```bash
-   npm test
-   ```
+```bash
+npm test
+```
+
 6. **Commit your changes**
-   ```bash
-   git commit -m "feat: add amazing feature"
-   ```
+```bash
+git commit -m "feat: add amazing feature"
+```
+
 7. **Push to your fork**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
+```bash
+git push origin feature/amazing-feature
+```
+
 8. **Open a Pull Request**
 
 ### Commit Message Guidelines
@@ -677,7 +651,6 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 - `chore:` Maintenance tasks
 
 **Example:**
-
 ```
 feat: add multiplayer matchmaking system
 
@@ -719,7 +692,7 @@ Closes #123
 
 ### Reporting Security Issues
 
-Please report security vulnerabilities to: [jonathan_juining@airdroitech.com]
+Please report security vulnerabilities to: jonathan_juining@airdroitech.com
 
 ---
 
@@ -769,14 +742,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - ☁️ Supabase PostgreSQL cloud database integration
 - 👤 User profile system with custom avatars (12 emoji options + custom URL)
-- 🏆 Global leaderboard with two ranking modes:
-  - Max Streak leaderboard
-  - Win Rate leaderboard
+- 🏆 Global leaderboard with two ranking modes (Max Streak & Win Rate)
 - 🥇 Rank badges (Gold/Silver/Bronze) for top 3 players
 - 🔄 Smart stats synchronization (merges localStorage + cloud, keeps highest values)
 - 📱 Mobile responsive design with circular icon buttons
 - 🗑️ Profile deletion feature (return to anonymous mode)
-- 🔐 Secure credential management with GitHub Secrets (hardcoded for now)
+- 🔐 Secure credential management with GitHub Secrets
 
 **Technical Improvements:**
 
@@ -824,6 +795,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 [Report Bug](https://github.com/FriesKnight/devops-cicd-pipeline-demo/issues) · [Request Feature](https://github.com/FriesKnight/devops-cicd-pipeline-demo/issues) · [View Demo](https://friesknight.github.io/devops-cicd-pipeline-demo/)
 
 </div>
- 
- 
-
